@@ -2,6 +2,8 @@ name: OroCommerce Enterprise Edition
 description: |
   Rancher catalog to bootstrap an OroCommerce Enterprise Edition Stack
 version: 1.0
-category: e-commerce
+category: ecommerce
 maintainer: info@diepartments.de
-
+minimum_rancher_version: v0.59.0
+license:
+projectURL: https://gitlab.com/diePartments/rancher-catalog.git

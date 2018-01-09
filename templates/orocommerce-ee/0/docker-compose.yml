@@ -31,7 +31,7 @@ services:
       io.rancher.container.pull_image: always
       cron.schedule: 0 0-59/5 * * * ?
   web:
-    image: ${BASE_REGUSTRY}/nginx:latest
+    image: ${BASE_REGISTRY}/nginx:latest
     environment:
       FASTCGI_PASS: app:9000
       SERVER_NAME: ${DOMAIN}
