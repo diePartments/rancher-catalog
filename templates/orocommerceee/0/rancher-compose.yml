@@ -26,7 +26,6 @@ catalog:
       The docker registry to be used to pull base images from
     required: true
     type: string
-    default: registry.gitlab.com/diepartments/orocommerce/images
   - variable: CONCRETE_REGISTRY
     description: |
       The docker registry to be used to pull concrete images from
