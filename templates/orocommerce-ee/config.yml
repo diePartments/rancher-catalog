@@ -1,0 +1,7 @@
+name: OroCommerce Enterprise Edition
+description: |
+  Rancher catalog to bootstrap an OroCommerce Enterprise Edition Stack
+version: 1.0
+category: e-commerce
+maintainer: info@diepartments.de
+

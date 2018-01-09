@@ -1,0 +1,84 @@
+version: '2'
+services:
+  app:
+    image: ${CONCRETE_REGISTRY}/orocommerce:${VERSION}
+    environment:
+      DOCKER_ENVIRONMENT: '1'
+      SEARCHENGINE_HOST: elasticsearch
+      DATABASE_NAME: ${DB_NAME}
+      DATABASE_HOST: postgres
+      DATABASE_PORT: '5432'
+      DATABASE_PASSWORD: ${DB_PASSWORD}
+      SEARCHENGINE_PORT: '9200'
+      DATABASE_USER: ${DB_USER}
+    stdin_open: true
+    tty: true
+    links:
+    - postgres:postgres
+    - orocommerceelastic:elasticsearch
+    labels:
+      io.rancher.container.pull_image: always
+  oro-cron:
+    image: ${CONCRETE_REGISTRY}/orocommerce:${VERSION}
+    stdin_open: true
+    tty: true
+    command:
+    - app/console
+    - oro:cron
+    - --env=prod
+    labels:
+      io.rancher.container.start_once: 'true'
+      io.rancher.container.pull_image: always
+      cron.schedule: 0 0-59/5 * * * ?
+  web:
+    image: ${BASE_REGUSTRY}/nginx:latest
+    environment:
+      FASTCGI_PASS: app:9000
+      SERVER_NAME: ${DOMAIN}
+    stdin_open: true
+    tty: true
+    links:
+    - postgres:postgres
+    - orocommerceelastic:elasticsearch
+    volumes_from:
+    - app
+    labels:
+      io.rancher.sidekicks: app
+      traefik.enable: 'true'
+      traefik.alias: ${TF_ALIAS}
+      traefik.port: '80'
+      traefik.domain: ${TF_DOMAIN}
+      io.rancher.container.pull_image: always
+      traefik.acme: 'true'
+  oro-mq:
+    image: ${CONCRETE_REGISTRY}/orocommerce:${VERSION}
+    links:
+    - postgres:postgres
+    - orocommerceelastic:elasticsearch
+    - web:websockets
+    command:
+    - su
+    - -capp/console oro:message-queue:consume --env=prod
+    - -s
+    - /bin/bash
+    - www-data
+    labels:
+      io.rancher.container.pull_image: always
+  postgres:
+    image: postgres:9-alpine
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    stdin_open: true
+    volumes:
+    - /data/${NAME}/postgres:/var/lib/postgresql/data
+    tty: true
+    labels:
+      io.rancher.container.pull_image: always
+  orocommerceelastic:
+    image: ${BASE_REGISTRY}/elasticsearch
+    stdin_open: true
+    tty: true
+    labels:
+      io.rancher.container.pull_image: always
